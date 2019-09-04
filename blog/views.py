@@ -63,7 +63,7 @@ def blog_with_date(request,year,month):
     blogs_all_list = Blog.objects.filter(created_time__year=year, created_time__month=month)
     context = blog_paginator(request,blogs_all_list)
     context['blog_with_date'] = '%s年%s月' %(year,month)
-    return render(request, 'blog/blogs_with_date.html', context)
+    return render(request, 'blog/blog_with_date.html', context)
 
 def blog_detail(request, blog_pk ):
 

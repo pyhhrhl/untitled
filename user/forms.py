@@ -41,20 +41,6 @@ class RegForm(forms.Form):
                                           'placeholder':'请输入3-30账号'
                                           }
                                ))
-    password = forms.CharField(label='密码',
-                               min_length=6,
-                               widget=forms.PasswordInput(
-                                   attrs={'class':'form-control',
-                                          'placeholder': '请输入密码'
-                                          }
-                               ))
-    password_again = forms.CharField(label='密码',
-                                    min_length=6,
-                                    widget=forms.PasswordInput(
-                                       attrs={'class':'form-control',
-                                              'placeholder': '请再次输入密码'
-                                              }
-                                    ))
     email = forms.EmailField(label='邮箱',
                                widget=forms.EmailInput(
                                    attrs={'class':'form-control',
@@ -65,10 +51,24 @@ class RegForm(forms.Form):
         required=False,
         widget=forms.TextInput(
             attrs={'class':'form-control', 'placeholder':'点击“发送验证码”发送到邮箱'}
-        )
-    )
+                                ))
+    password = forms.CharField(label='密码',
+                               min_length=6,
+                               widget=forms.PasswordInput(
+                                   attrs={'class':'form-control',
+                                          'placeholder': '请输入密码'
+                                          }
+                               ))
+    password_again = forms.CharField(label='再次输入密码',
+                                    min_length=6,
+                                    widget=forms.PasswordInput(
+                                       attrs={'class':'form-control',
+                                              'placeholder': '请再次输入密码'
+                                              }
+                                    ))
+
     def __init__(self, *args, **kwargs):
-        if 'request' in kwargs:
+        if  'request' in kwargs:
             self.request = kwargs.pop('request')
         super(RegForm, self).__init__(*args, **kwargs)
 

@@ -43,7 +43,7 @@ def login(request):
 
 def register(request):
     if request.method == 'POST':
-        register_form = RegForm(request.POST)
+        register_form = RegForm(request.POST, request=request)
         if register_form.is_valid():
             username = register_form.cleaned_data['username']
             password = register_form.cleaned_data['password']
@@ -136,7 +136,7 @@ def send_verification_code(request):
             send_mail(
                 '绑定邮箱',
                 '验证码：%s' % code,
-                '2872402050@qq.com',
+                '100620933@qq.com',
                 [email],
                 fail_silently=False,
             )

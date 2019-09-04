@@ -1,3 +1,4 @@
 db.sqlite3
-settings.py
+production.py
+development.py
 __pycache__/
