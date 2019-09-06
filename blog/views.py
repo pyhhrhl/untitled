@@ -52,21 +52,20 @@ def blog_list(request):
     context = blog_paginator(request,blogs_all_list)
     return  render(request,'blog/blog_list.html', context)
 
-def blog_with_type(request,blog_type_pk):
+def blog_with_type(request, blog_type_pk):
     blog_type = get_object_or_404(BlogType,pk=blog_type_pk)
     blogs_all_list = Blog.objects.filter(blog_type=blog_type)
     context = blog_paginator(request,blogs_all_list)
     context['blog_type'] = blog_type
     return render(request, 'blog/blog_with_type.html', context)
 
-def blog_with_date(request,year,month):
+def blog_with_date(request, year, month):
     blogs_all_list = Blog.objects.filter(created_time__year=year, created_time__month=month)
     context = blog_paginator(request,blogs_all_list)
     context['blog_with_date'] = '%s年%s月' %(year,month)
     return render(request, 'blog/blog_with_date.html', context)
 
-def blog_detail(request, blog_pk ):
-
+def blog_detail(request, blog_pk):
     blog = get_object_or_404(Blog, pk=blog_pk)
     read_cookie_key =  read_statistics_once_read(request,blog)
     # 页面返回

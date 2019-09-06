@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load notifications_tags %}
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -13,6 +14,7 @@
     <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
     <script type="text/javascript" src="{% static 'jquery-1.12.4.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'bootstrap-3.3.7/js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'notifications/notify.js' %}"></script>
     {% block header_extends %}{% endblock %}
 {# w3cshool css 韩顺平 html+css 学习 #}
 </head>
@@ -39,20 +41,45 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {% if not user.is_authenticated %}
-                        <li><a  href="{% url 'login' %}?from={{ request.get_full_path }}">登录</a></li>
-                        <li><a href="{% url 'register' %}?from={{ request.get_full_path }}">注册</a></li>
+                        <li>
+                            {% if request.GET.from %}
+                                <a href="{% url 'login' %}?from={{ request.GET.from }}">登录</a>
+                            {% else %}
+                                <a href="{% url 'login' %}?from={{ request.get_full_path }}">登录</a>
+                            {% endif %}
+                        </li>
+                        <li>
+                            {% if request.GET.from %}
+                                <a href="{% url 'register' %}?from={{ request.GET.from }}">注册</a>
+                            {% else %}
+                                <a href="{% url 'register' %}?from={{ request.get_full_path }}">注册</a>
+                            {% endif %}
+                        </li>
                     {% else %}
+                        {% notifications_unread as unread_count %}
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" >
                                  {% if user.has_nickname %}
-                                    {{ user.username }}({{ user.get_nickname }})
+                                    您好，{{ user.get_nickname_or_username }}
+                                {% if unread_count > 0 %}
+                                <span class="badge unread-count live_notify_badge">
+                                    {{ unread_count }}
+                                </span>
+                                {% endif %}
                                 {% else %}
                                     {{ user.username }}
                                 {% endif %}
                                 <span class="caret"></span></a>
                             <ul class="dropdown-menu">
                             <li><a href="{% url 'user_info' %}">个人资料</a></li>
-                            <li><a href="{% url 'change_password' %}">修改密码</a></li>
+                            <li><a href="{% url 'my_notifications' %}">我的消息
+                                {% if unread_count > 0 %}
+                                <span class="badge unread-count live_notify_badge">
+                                    {{ unread_count }}
+                                </span>
+                                {% endif %}
+                                </a>
+                            </li>
                                 {% if user.is_staff or user.is_superuser %}
 {#                                {% if user.username == 'admin' %}#}
                                     <li><a href="{% url 'admin:index' %}">后台管理</a></li>
@@ -62,58 +89,70 @@
                             </ul>
                         </li>
                     {% endif %}
+                    <li>
+                        <form class="navbar-form search-form" action="{% url 'search' %}">
+                            <div class="form-group">
+                                <input type="text" name="wd" class="form-control" placeholder="Search">
+                            </div>
+                            <button type="submit" class="btn btn-default">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </button>
+                        </form>
+                    </li>
                 </ul>
             </div>
         </div>
     </div>
     {% block content %}{% endblock %}
-                <!-- Modal -->
-        <div class="modal fade" id="login_modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-sm" role="document">
-                <div class="modal-content">
-                    <form id="login_medal_form" action="" method="POST">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">登录</h4>
-                        </div>
 
-                        <div class="modal-body">
-                            {% csrf_token %}
-                            {% for field in login_modal_form %}
-                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
-                            {% endfor %}
-                            <span id="login_medal_tip" class="text-danger"></span>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">登录</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <!-- footer -->
+    <div class="footer">
+        <div class="website-info">
+            <p>版权所有</p>
+            <p>意见反馈或联系我（1006209330@qq.com）</p>
         </div>
-        <script type="text/javascript">
-            $("#login_medal_form").submit(function(event){
-            event.preventDefault();  //阻止原本的事件代码提交
-            $.ajax({
-                url: "{% url 'login_for_medal' %}",
-                type: 'POST',
-                data: $(this).serialize(),
-                cache: false,
-                success: function(data){
-                    console.log(data);
-                    if(data['status'] === 'SUCCESS'){
+    </div>
 
-                        window.location.reload(); //当前页面重新加载
-                    }else{
-                        $('#login_medal_tip').text('用户名或密码不正确');
-                    }
+    <script type="text/javascript">
+        //底部栏置底
+        //窗体改变大小事件
+        $(window).resize(function(){
+            //正文高度
+            var body_height = $(document.body).outerHeight(true);
+            //底部元素高度
+            var bottom_height = $("#footer").outerHeight(true);
+            //浏览器页面高度
+            var window_height = $(window).height();
+
+            //判断并调整底部元素的样式
+            if($(".footer").hasClass('page-bottom')){
+                //若包含有page-bottom类，就应用了position设置
+                //当position为absolute时，body高度不包含这个元素
+                //所以页面高度需要判断body和footer之和若小于浏览器窗口
+                //则移除样式，让footer自然跟随在正文后面
+                if(body_height + bottom_height >= window_height){
+                    $(".footer").removeClass('page-bottom');
                 }
-            });
+            }else{
+                //若没有page-bottom类，body高度包含footer
+                //判断body高度小于浏览器时，则悬浮于底部
+                if(body_height < window_height){
+                    $(".footer").addClass('page-bottom');
+                }
+            }
         });
-        </script>
-    {% block script_extends %} {% endblock %}
+        //页面加载时，模拟触发一下resize事件
+        $(window).trigger('resize');
+        //自定义实时获取未读消息
+        function my_special_notification_callback(data){
+            unread_count = data['unread_count'];
+            if (unread_count == 0) {
+                unread_count = '';
+            }
+            $('.live_notify_badge').text(unread_count);
+        }
+    </script>
+    {% register_notify_callbacks callbacks='my_special_notification_callback' %}
+    {% block script_extends %}{% endblock %}
 </body>
 </html>

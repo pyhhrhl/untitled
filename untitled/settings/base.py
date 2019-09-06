@@ -29,19 +29,21 @@ INSTALLED_APPS = [
     #第3方库
     'ckeditor',
     'ckeditor_uploader',
+    'notifications',
     # 项目APP
     'blog',
     'read_statistics',
     'comment',
     'likes',
     'user',
+    'my_notifications',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -148,4 +150,15 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
         'LOCATION': 'my_cache_table',
     }
+}
+
+# QQ登录配置
+# QQ_APP_ID = '101523209'
+# QQ_APP_KEY = os.environ['QQ_APP_KEY']
+# QQ_REDIRECT_URL = 'http://zqyhdm.com/user/login_by_qq'
+# QQ_STATE = 'zqyhdm'
+
+# django-notifications-hq设置
+DJANGO_NOTIFICATIONS_CONFIG = {
+    'USE_JSONFIELD': True,
 }

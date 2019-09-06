@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect
 from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
-from  .models import *
+from .models import *
 from .forms import CommentForm
 # Create your views here.
 
@@ -22,17 +22,15 @@ def update_comment(request):
             comment.parent = parent
             comment.reply_to =parent.user
         comment.save()
-
-        # 发送邮件通知
-        comment.send_mail()
+        print('数据保存，发送信号')
 
         data['status'] = 'SUCCESS'
-        data['username'] = comment.user.username
+        data['username'] = comment.user.get_nickname_or_username()
         data['comment_time'] = comment.comment_time.timestamp()
         data['text'] = comment.text
         data['content_type'] = ContentType.objects.get_for_model(comment).model
         if not parent is None:
-            data['reply_to'] = comment.reply_to.username
+            data['reply_to'] = comment.reply_to.get_nickname_or_username()
         else:
             data['reply_to'] = ''
         data['pk'] = comment.pk
